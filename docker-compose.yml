@@ -1,0 +1,53 @@
+services:
+  # The Persistence Layer
+  postgres:
+    image: postgres:15-alpine
+    container_name: yuno_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: yuno_admin
+      POSTGRES_PASSWORD: yuno_secure_password # In production, will be replaced with an .env file
+      POSTGRES_DB: yuno_agents
+    ports:
+      - "5432:5432"
+    volumes:
+      # Binding the container's data directory to the local /docker folder
+      # ensuring agent memory and schemas survive container restarts.
+      - ./docker/postgres_data:/var/lib/postgresql/data
+
+    # The API Backend
+  backend:
+    build:
+      # Sets the build context to the backend directory so Docker only processes the API files
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: yuno_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      # Ensures the database starts before the backend attempts to connect
+      - postgres
+    volumes:
+      # Mounts the local backend code into the container for live reloading during development
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+
+# The Web UI
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: yuno_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      # Ensures the backend is up before the frontend starts
+      - backend
+    volumes:
+      # Mounts the local frontend code into the container for live reloading
+      - ./frontend:/app
+      # Prevents the local node_modules folder from overriding the container's installed modules
+      - /app/node_modules

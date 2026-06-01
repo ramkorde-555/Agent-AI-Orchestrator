@@ -1,0 +1,97 @@
+[
+  {
+    "created_at": "2026-05-31T12:37:04.831089Z",
+    "name": "RMSE Calculator",
+    "graph_config": {
+      "edges": [
+        {
+          "to": "agent_77b04fd8-dc03-45b7-bf89-61f2960a9134",
+          "from": "agent_ece41c29-d88e-468c-b519-8a4330f3652b",
+          "condition": "[ROUTE_SUBTRACT]"
+        },
+        {
+          "to": "agent_3ddb6337-3596-4bb5-aa86-62ebc3101138",
+          "from": "agent_77b04fd8-dc03-45b7-bf89-61f2960a9134",
+          "condition": "[ROUTE_RMSE]"
+        }
+      ],
+      "agents": [
+        {
+          "id": "agent_ece41c29-d88e-468c-b519-8a4330f3652b",
+          "name": "Input Agent",
+          "role": "User Input Taker",
+          "type": "agent",
+          "model": "gemini-2.5-flash",
+          "tools": [],
+          "is_entry": true,
+          "system_prompt": "You are the input taker for this system. Ask the user for their input of 2 lists of numbers, emphasizing they must be of equal length.\nCRITICAL ROUTING INSTRUCTION: Once the user provides valid lists, you must append the exact system token [ROUTE_SUBTRACT] on a brand new line at the very end of your response. Do not add any periods, words, or formatting after this token."
+        },
+        {
+          "id": "agent_77b04fd8-dc03-45b7-bf89-61f2960a9134",
+          "name": "Error Finder",
+          "role": "Error Calculator from 2 lists",
+          "type": "agent",
+          "model": "gemini-2.5-flash",
+          "tools": [
+            "subtract_lists"
+          ],
+          "is_entry": false,
+          "system_prompt": "When given 2 lists, you use the Subtract Lists tool and convey its output. You must never do the calculation on your own.\nCRITICAL ROUTING INSTRUCTION: Once you have successfully called the tool and output the subtracted list, you must append the exact system token [ROUTE_RMSE] on a brand new line at the very end of your response. Do not add any periods, words, or formatting after this token."
+        },
+        {
+          "id": "agent_3ddb6337-3596-4bb5-aa86-62ebc3101138",
+          "name": "RMS Calculator",
+          "role": "Root Mean Square Calculator of a list",
+          "type": "agent",
+          "model": "gemini-2.5-flash",
+          "tools": [
+            "root_mean_square"
+          ],
+          "is_entry": false,
+          "system_prompt": "You take a list of numbers and calculate the root mean square of it using the Root Mean Square tool. You must always use the tool for calculation. You convey the results to the user. For valid inputs, your message is of the format \"The Root Mean Squared Error (RMSE) of your lists is [result from tool]\"."
+        }
+      ]
+    },
+    "id": "a163e2e8-3f6b-48b7-9ce0-fa9eb88bd9f7",
+    "description": "Seeded Workflow - Demonstrates agents hat collaborate to calculate the RMSE of 2 lists provided by the user. The workflow consists of an Input Agent that takes user input, an Error Finder agent that calculates the element-wise difference between the two lists, and an RMS Calculator agent that computes the root mean square of the resulting list of differences to provide the final RMSE value to the user."
+  },
+  {
+    "id": "82b4a1b0-9f5e-4c7a-8b3d-1a2b3c4d5e6f",
+    "name": "Transaction JSON Extractor",
+    "description": "Converts natural language financial transactions into structured JSON database payloads.",
+    "created_at": "2026-06-01T12:00:00.000000+00:00",
+    "graph_config": {
+      "edges": [
+        {
+          "from": "agent_tx_input",
+          "to": "agent_tx_extractor",
+          "condition": "[ROUTE_EXTRACT]"
+        }
+      ],
+      "agents": [
+        {
+          "id": "agent_tx_input",
+          "name": "Intake Agent",
+          "role": "User Input Taker",
+          "type": "agent",
+          "model": "gemini-2.5-flash",
+          "tools": [],
+          "is_entry": true,
+          "system_prompt": "You are the intake agent. Ask the user to provide a sentence describing a financial transaction (e.g., 'Jack paid $300 to Annie on Cashapp'). CRITICAL ROUTING INSTRUCTION: Once the user provides the sentence, you must append the exact system token [ROUTE_EXTRACT] on a brand new line at the very end of your response to route the data."
+        },
+        {
+          "id": "agent_tx_extractor",
+          "name": "JSON Extractor",
+          "role": "Data Extractor",
+          "type": "agent",
+          "model": "gemini-2.5-flash",
+          "tools": [
+            "format_transaction_json"
+          ],
+          "is_entry": false,
+          "system_prompt": "You are a data extractor. Your job is to extract the payer, payee, amount, and payment method from the user's sentence and pass them to the `format_transaction_json` tool. You must never format the JSON yourself; always call the tool. Output the resulting JSON block."
+        }
+      ]
+    }
+  }
+]
