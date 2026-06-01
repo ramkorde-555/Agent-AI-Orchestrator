@@ -1,5 +1,3 @@
------ This Repo Is being updated on 31 May 2026-----
-
 # Yuno Orchestrator: Dynamic Multi-Agent Platform
 
 A full-stack platform for visually constructing and configuring autonomous AI workflows via a Next.js canvas, allowing users to interact with their deployed multi-agent systems through an integrated web chat or an external Telegram bot.
