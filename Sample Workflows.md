@@ -33,7 +33,7 @@ An NLP data extraction pipeline that converts unstructured, natural-language fin
 
 ## How to Test
 
-1. Launch your stack using `docker-compose up -d --build` (ensure you have cleared old volumes if this is your first time loading the seed data).
+1. Launch your stack using `docker-compose up -d --build`.
 2. Open the **Chat Simulator** from the frontend UI.
 3. Select your desired workflow from the **Active Engine** dropdown menu.
 4. Interact with the agents, and open the **Developer Logs** tab to watch the LangGraph node routing and tool telemetry in real-time.
